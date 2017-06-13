@@ -7,9 +7,9 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("ModelNamingConventions")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("A class library that allows the developer to define Entity Framework naming conventions that transform entity names into alternate database object names.")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
+[assembly: AssemblyCompany("Kyle Herzog")]
 [assembly: AssemblyProduct("ModelNamingConventions")]
 [assembly: AssemblyCopyright("Copyright ©  2017")]
 [assembly: AssemblyTrademark("")]

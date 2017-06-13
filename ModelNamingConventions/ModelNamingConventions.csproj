@@ -70,6 +70,7 @@
   <ItemGroup>
     <None Include="App.config" />
     <Content Include="ModelNamingConventions.ruleset" />
+    <None Include="ModelNamingConventions.nuspec" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
