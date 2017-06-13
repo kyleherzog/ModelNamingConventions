@@ -2,6 +2,9 @@
 
 [![Build status](https://ci.appveyor.com/api/projects/status/1qg4m7wfh5ihndyu?svg=true)](https://ci.appveyor.com/project/kyleherzog/modelnamingconventions)
 
+This library is available from [NuGet.org](https://www.nuget.org/packages/ModelNamingConventions/)
+or download from the [CI build feed](https://ci.appveyor.com/nuget/ModelNamingConventions).
+
 --------------------------
 
 A class library that allows the developer to define Entity Framework naming conventions that transform entity names into alternate database object names. 
