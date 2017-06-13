@@ -1,6 +1,6 @@
 # Model Naming Conventions
 
-
+[![Build status](https://ci.appveyor.com/api/projects/status/1qg4m7wfh5ihndyu?svg=true)](https://ci.appveyor.com/project/kyleherzog/modelnamingconventions)
 
 --------------------------
 
