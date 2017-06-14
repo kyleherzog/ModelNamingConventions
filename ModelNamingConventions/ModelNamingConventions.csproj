@@ -69,8 +69,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-    <None Include="content\web.config.install.xdt" />
-    <None Include="content\app.config.install.xdt" />
+    <Content Include="content\web.config.install.xdt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="content\app.config.install.xdt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <None Include="ModelNamingConventions.ruleset" />
     <None Include="ModelNamingConventions.nuspec" />
     <None Include="packages.config" />
