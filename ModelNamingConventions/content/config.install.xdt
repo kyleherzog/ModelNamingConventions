@@ -11,7 +11,7 @@
       columnCasingDefault="ScreamingSnake"
       -->
     <autoPrefixColumns>
-      <!--<add name="Id"></add-->>
+      <!--<add name="Id"></add>-->
     </autoPrefixColumns>
   </modelNamingConventions>
 </configuration>
