@@ -69,10 +69,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-    <Content Include="content\web.config.install.xdt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="content\app.config.install.xdt">
+    <Content Include="content\config.install.xdt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <None Include="ModelNamingConventions.ruleset" />

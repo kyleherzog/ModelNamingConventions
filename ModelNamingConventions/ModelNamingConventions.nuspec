@@ -14,7 +14,7 @@
     <tags>Entity Framework Model Naming Convetions Table Column Prefix Casing</tags>
   </metadata>
   <files>
-    <file src="content\app.config.install.xdt" target="content"></file>
-    <file src="content\web.config.install.xdt" target="content"></file>
+    <file src="content\config.install.xdt" target="content\web.config.install.xdt"></file>
+    <file src="content\config.install.xdt" target="content\app.config.install.xdt"></file>
   </files>
 </package>
