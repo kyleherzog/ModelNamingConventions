@@ -4,6 +4,8 @@ using System.Data.Entity.ModelConfiguration.Configuration;
 using System.Data.Entity.ModelConfiguration.Conventions;
 using System.Linq;
 using System.Reflection;
+using System.Web;
+using System.Web.Configuration;
 using CodeCasing;
 using ModelNamingConventions.Attributes;
 using ModelNamingConventions.Config;
@@ -16,15 +18,29 @@ namespace ModelNamingConventions
         private bool hasLoadedConfig;
 
         public ModelNamingConvention()
-            : this(ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None))
+            : this(null as Configuration)
         {
         }
 
         internal ModelNamingConvention(Configuration config)
         {
-            Config = config;
-            this.Types().Configure(ConfigureTypes());
+            if (config == null)
+            {
+                if (HttpContext.Current == null)
+                {
+                    Config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
+                }
+                else
+                {
+                    Config = WebConfigurationManager.OpenWebConfiguration("~");
+                }
+            }
+            else
+            {
+                Config = config;
+            }
 
+            this.Types().Configure(ConfigureTypes());
             this.Properties().Configure(ConfigureProperties());
         }
 
