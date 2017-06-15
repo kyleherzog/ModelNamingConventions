@@ -34,5 +34,17 @@ namespace ModelNamingConventions.Tests
             var expected = string.Concat(assemblySetTablePrefix, testTypeName).ToSpinalCase();
             Assert.AreEqual(expected, tableName);
         }
+
+        [TestMethod]
+        public void ApplyTableNamingReturnsProperlyPrefixedTablesAcrossMultipleAssemblies()
+        {
+            var convention = ConventionGenerator.CreateModelNaming(ConventionGenerator.DefaultsOnlyConfig);
+            var tableName = convention.ApplyTableNaming(AssemblyManager.GetDefault(), testTypeName);
+            Assert.AreEqual(testTypeName.ToScreamingSnakeCase(), tableName);
+
+            tableName = convention.ApplyTableNaming(AssemblyManager.LoadTestAttributesAssembly(), testTypeName);
+            var expected = string.Concat(assemblySetTablePrefix, testTypeName).ToSpinalCase();
+            Assert.AreEqual(expected, tableName);
+        }
     }
 }

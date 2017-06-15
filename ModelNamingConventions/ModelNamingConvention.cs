@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Configuration;
 using System.Data.Entity.ModelConfiguration.Configuration;
 using System.Data.Entity.ModelConfiguration.Conventions;
@@ -44,15 +45,142 @@ namespace ModelNamingConventions
             this.Properties().Configure(ConfigureProperties());
         }
 
-        internal IEnumerable<string> AutoPrefixedColumns { get; set; }
+        private Dictionary<string, IEnumerable<string>> autoPrefixedColumns;
 
-        internal CasingStyle? ColumnCasingStyle { get; set; }
+        internal IEnumerable<string> GetAutoPrefixedColumns(Assembly assembly)
+        {
+            if (autoPrefixedColumns == null)
+            {
+                autoPrefixedColumns = new Dictionary<string, IEnumerable<string>>();
+            }
+
+            if (!autoPrefixedColumns.Keys.Contains(assembly.FullName))
+            {
+                var columns = new List<string>();
+
+                if (ConfigSection != null)
+                {
+                    if (!ConfigSection.IsReplacingAutoPrefixColumns)
+                    {
+                        var attribute = assembly.GetCustomAttributes(typeof(ColumnAutoPrefixingAttribute), false).Cast<ColumnAutoPrefixingAttribute>().FirstOrDefault();
+                        if (attribute != null)
+                        {
+                            columns.AddRange(attribute.PropertyNames);
+                        }
+                    }
+
+                    foreach (AutoPrefixColumnConfigurationElement item in ConfigSection.AutoPrefixColumns)
+                    {
+                        columns.Add(item.Name);
+                    }
+                }
+
+                autoPrefixedColumns[assembly.FullName] = columns;
+            }
+
+            return autoPrefixedColumns[assembly.FullName];
+        }
+
+        private Dictionary<string, CasingStyle> columnCasingStyles;
+
+        internal CasingStyle GetColumnCasingStyle(Assembly assembly)
+        {
+            if (columnCasingStyles == null)
+            {
+                columnCasingStyles = new Dictionary<string, CasingStyle>();
+            }
+
+            if (!columnCasingStyles.Keys.Contains(assembly.FullName))
+            {
+                CasingStyle? style;
+
+                if (ConfigSection != null && ConfigSection.ColumnCasing.HasValue)
+                {
+                    style = ConfigSection.ColumnCasing;
+                }
+                else
+                {
+                    style = GetAssemblyColumnCasingStyle(assembly);
+                    if (!style.HasValue && ConfigSection != null)
+                    {
+                        style = ConfigSection.ColumnCasingDefault;
+                    }
+
+                    if (!style.HasValue)
+                    {
+                        style = CasingStyle.None;
+                    }
+                }
+
+                columnCasingStyles[assembly.FullName] = style.Value;
+            }
+
+            return columnCasingStyles[assembly.FullName];
+        }
 
         internal Configuration Config { get; }
 
-        internal CasingStyle? TableCasingStyle { get; set; }
+        private Dictionary<string, CasingStyle> tableCasingStyles;
 
-        internal string TablePrefix { get; set; }
+        internal CasingStyle GetTableCasingStyle(Assembly assembly)
+        {
+            if (tableCasingStyles == null)
+            {
+                tableCasingStyles = new Dictionary<string, CasingStyle>();
+            }
+
+            if (!tableCasingStyles.Keys.Contains(assembly.FullName))
+            {
+                CasingStyle? style;
+
+                if (ConfigSection != null && ConfigSection.TableCasing.HasValue)
+                {
+                    style = ConfigSection.TableCasing;
+                }
+                else
+                {
+                    style = GetAssemblyTableCasingStyle(assembly);
+                    if (!style.HasValue && ConfigSection != null)
+                    {
+                        style = ConfigSection.TableCasingDefault;
+                    }
+
+                    if (!style.HasValue)
+                    {
+                        style = CasingStyle.None;
+                    }
+                }
+
+                tableCasingStyles[assembly.FullName] = style.Value;
+            }
+
+            return tableCasingStyles[assembly.FullName];
+        }
+
+        private Dictionary<string, string> tablePrefixes;
+
+        internal string GetTablePrefix(Assembly assembly)
+        {
+            if (tablePrefixes == null)
+            {
+                tablePrefixes = new Dictionary<string, string>();
+            }
+
+            if (!tablePrefixes.Keys.Contains(assembly.FullName))
+            {
+                var attribute = assembly.GetCustomAttributes(typeof(TablePrefixAttribute), false).Cast<TablePrefixAttribute>().FirstOrDefault();
+                if (attribute != null)
+                {
+                    tablePrefixes[assembly.FullName] = attribute.Value;
+                }
+                else
+                {
+                    tablePrefixes[assembly.FullName] = string.Empty;
+                }
+            }
+
+            return tablePrefixes[assembly.FullName];
+        }
 
         protected ModelNamingConventionsSection ConfigSection
         {
@@ -71,15 +199,11 @@ namespace ModelNamingConventions
         internal string ApplyColumnNaming(string columnName, string declaringTypeName, Assembly assembly)
         {
             var result = ApplyColumnPrefixing(columnName, declaringTypeName, assembly);
+            var style = GetColumnCasingStyle(assembly);
 
-            if (!ColumnCasingStyle.HasValue)
+            if (style > CasingStyle.None)
             {
-                LoadColumnCasingStyle(assembly);
-            }
-
-            if (ColumnCasingStyle.Value > CasingStyle.None)
-            {
-                result = CasingConverter.Convert(result, ColumnCasingStyle.Value);
+                result = CasingConverter.Convert(result, style);
             }
 
             return result;
@@ -87,113 +211,21 @@ namespace ModelNamingConventions
 
         internal string ApplyTableNaming(Assembly assembly, string typeName)
         {
-            if (TablePrefix == null)
-            {
-                LoadTablePrefix(assembly);
-            }
+            var tableName = string.Concat(GetTablePrefix(assembly), typeName);
 
-            var tableName = string.Concat(TablePrefix, typeName);
-
-            if (!TableCasingStyle.HasValue)
+            var style = GetTableCasingStyle(assembly);
+            if (style > CasingStyle.None)
             {
-                LoadTableCasingStyle(assembly);
-            }
-
-            if (TableCasingStyle.Value > CasingStyle.None)
-            {
-                tableName = CasingConverter.Convert(tableName, TableCasingStyle.Value);
+                tableName = CasingConverter.Convert(tableName, style);
             }
 
             return tableName;
         }
 
-        internal void LoadAutoPrefixedColumns(Assembly assembly)
-        {
-            var columnsNames = new List<string>();
-
-            if (ConfigSection != null)
-            {
-                if (!ConfigSection.IsReplacingAutoPrefixColumns)
-                {
-                    var attribute = assembly.GetCustomAttributes(typeof(ColumnAutoPrefixingAttribute), false).Cast<ColumnAutoPrefixingAttribute>().FirstOrDefault();
-                    if (attribute != null)
-                    {
-                        columnsNames.AddRange(attribute.PropertyNames);
-                    }
-                }
-
-                foreach (AutoPrefixColumnConfigurationElement item in ConfigSection.AutoPrefixColumns)
-                {
-                    columnsNames.Add(item.Name);
-                }
-            }
-
-            AutoPrefixedColumns = columnsNames;
-        }
-
-        internal void LoadColumnCasingStyle(Assembly assembly)
-        {
-            if (ConfigSection != null && ConfigSection.ColumnCasing.HasValue)
-            {
-                ColumnCasingStyle = ConfigSection.ColumnCasing;
-            }
-            else
-            {
-                ColumnCasingStyle = GetAssemblyColumnCasingStyle(assembly);
-                if (!ColumnCasingStyle.HasValue && ConfigSection != null)
-                {
-                    ColumnCasingStyle = ConfigSection.ColumnCasingDefault;
-                }
-
-                if (!ColumnCasingStyle.HasValue)
-                {
-                    ColumnCasingStyle = CasingStyle.None;
-                }
-            }
-        }
-
-        internal void LoadTableCasingStyle(Assembly assembly)
-        {
-            if (ConfigSection != null && ConfigSection.TableCasing.HasValue)
-            {
-                TableCasingStyle = ConfigSection.TableCasing;
-            }
-            else
-            {
-                TableCasingStyle = GetAssemblyTableCasingStyle(assembly);
-                if (!TableCasingStyle.HasValue && ConfigSection != null)
-                {
-                    TableCasingStyle = ConfigSection.TableCasingDefault;
-                }
-
-                if (!TableCasingStyle.HasValue)
-                {
-                    TableCasingStyle = CasingStyle.None;
-                }
-            }
-        }
-
-        internal void LoadTablePrefix(Assembly assembly)
-        {
-            var attribute = assembly.GetCustomAttributes(typeof(TablePrefixAttribute), false).Cast<TablePrefixAttribute>().FirstOrDefault();
-            if (attribute != null)
-            {
-                TablePrefix = attribute.Value;
-            }
-            else
-            {
-                TablePrefix = string.Empty;
-            }
-        }
-
         private string ApplyColumnPrefixing(string columnName, string declaringTypeName, Assembly assembly)
         {
-            if (AutoPrefixedColumns == null)
-            {
-                LoadAutoPrefixedColumns(assembly);
-            }
-
-            if (AutoPrefixedColumns.Contains(columnName))
+            var columns = GetAutoPrefixedColumns(assembly);
+            if (columns.Contains(columnName))
             {
                 columnName = string.Concat(declaringTypeName, columnName);
             }

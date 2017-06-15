@@ -5,7 +5,7 @@ using ModelNamingConventions.Tests.Helpers;
 namespace ModelNamingConventions.Tests
 {
     [TestClass]
-    public class LoadTableCasingStyleTests
+    public class GetTableCasingStyleTests
     {
         private const CasingStyle defaultTableCasing = CasingStyle.ScreamingSnake;
         private const CasingStyle configTableCasing = CasingStyle.Pascal;
@@ -15,9 +15,9 @@ namespace ModelNamingConventions.Tests
         public void TableCasingStyleSetToDefaultTableCasingWhenNoConfigOrAssemblyCasingSet()
         {
             var convention = ConventionGenerator.CreateModelNaming(ConventionGenerator.DefaultsOnlyConfig);
-            convention.LoadTableCasingStyle(AssemblyManager.GetDefault());
+            var style = convention.GetTableCasingStyle(AssemblyManager.GetDefault());
 
-            Assert.AreEqual(defaultTableCasing, convention.TableCasingStyle);
+            Assert.AreEqual(defaultTableCasing, style);
         }
 
         [TestMethod]
@@ -25,9 +25,9 @@ namespace ModelNamingConventions.Tests
         {
             var convention = ConventionGenerator.CreateModelNaming(ConventionGenerator.DefaultsOnlyConfig);
             var assembly = AssemblyManager.LoadTestAttributesAssembly();
-            convention.LoadTableCasingStyle(assembly);
+            var style = convention.GetTableCasingStyle(assembly);
 
-            Assert.AreEqual(assemblyTableCasing, convention.TableCasingStyle);
+            Assert.AreEqual(assemblyTableCasing, style);
         }
 
         [TestMethod]
@@ -35,27 +35,27 @@ namespace ModelNamingConventions.Tests
         {
             var convention = ConventionGenerator.CreateModelNaming(ConventionGenerator.CasingPlusDefaultsConfig);
             var assembly = AssemblyManager.LoadTestAttributesAssembly();
-            convention.LoadTableCasingStyle(assembly);
+            var style = convention.GetTableCasingStyle(assembly);
 
-            Assert.AreEqual(configTableCasing, convention.TableCasingStyle);
+            Assert.AreEqual(configTableCasing, style);
         }
 
         [TestMethod]
         public void TableCasingStyleSetToConfigValueWhenSetAndNoAssemblyAttributesSet()
         {
             var convention = ConventionGenerator.CreateModelNaming(ConventionGenerator.CasingPlusDefaultsConfig);
-            convention.LoadTableCasingStyle(AssemblyManager.GetDefault());
+            var style = convention.GetTableCasingStyle(AssemblyManager.GetDefault());
 
-            Assert.AreEqual(configTableCasing, convention.TableCasingStyle);
+            Assert.AreEqual(configTableCasing, style);
         }
 
         [TestMethod]
         public void TableCasingStyleSetToNoneWhenNoAssemblyAttributesAndEmptyConfig()
         {
             var convention = ConventionGenerator.CreateModelNaming(ConventionGenerator.EmptyConfig);
-            convention.LoadTableCasingStyle(AssemblyManager.GetDefault());
+            var style = convention.GetTableCasingStyle(AssemblyManager.GetDefault());
 
-            Assert.AreEqual(CasingStyle.None, convention.TableCasingStyle);
+            Assert.AreEqual(CasingStyle.None, style);
         }
     }
 }

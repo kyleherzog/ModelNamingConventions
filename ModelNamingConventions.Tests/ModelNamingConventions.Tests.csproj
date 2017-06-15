@@ -62,10 +62,10 @@
   <ItemGroup>
     <Compile Include="Helpers\AssemblyManager.cs" />
     <Compile Include="Helpers\ConventionGenerator.cs" />
-    <Compile Include="LoadColumnCasingStyleTests.cs" />
-    <Compile Include="LoadTableCasingStyleTests.cs" />
+    <Compile Include="GetColumnCasingStyleTests.cs" />
+    <Compile Include="GetTableCasingStyleTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="LoadTablePrefixTests.cs" />
+    <Compile Include="GetTablePrefixTests.cs" />
     <Compile Include="ApplyTableNamingTests.cs" />
     <Compile Include="ApplyColumnNamingTests.cs" />
   </ItemGroup>
