@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.Configuration;
 using System.Data.Entity.ModelConfiguration.Configuration;
 using System.Data.Entity.ModelConfiguration.Conventions;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Web;
@@ -29,11 +29,27 @@ namespace ModelNamingConventions
             {
                 if (HttpContext.Current == null)
                 {
-                    Config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
+                    try
+                    {
+                        Config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
+                    }
+                    catch (System.Exception ex)
+                    {
+                        // maybe we're in a web app after all with async??
+                        Debug.WriteLine(ex.ToString());
+                    }
                 }
-                else
+
+                if (config == null)
                 {
-                    Config = WebConfigurationManager.OpenWebConfiguration("~");
+                    try
+                    {
+                        Config = WebConfigurationManager.OpenWebConfiguration("~");
+                    }
+                    catch (System.Exception ex)
+                    {
+                        Debug.WriteLine(ex.ToString());
+                    }
                 }
             }
             else
